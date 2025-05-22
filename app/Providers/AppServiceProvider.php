@@ -12,19 +12,22 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        // Регистрируем внешние сервисы
+        $this->app->singleton(EskizService::class, fn () => new EskizService());
+        $this->app->singleton(PilotService::class, fn () => new PilotService());
+    }
 
     public function boot(): void
     {
-        $this->app->singleton(EskizService::class, fn() => new EskizService());
-        $this->app->singleton(PilotService::class, fn() => new PilotService());
-
-        // 🔔 Регистрация Telegram-уведомлений при создании заказа
+        // Подключаем Telegram-уведомления при создании заказов
         Order::observe(OrderObserver::class);
 
+        // Подключаем скрипты для Filament
         Filament::registerScripts([
             Vite::asset('resources/js/app.js'),
-            asset('firebase-messaging-sw.js')
+            asset('firebase-messaging-sw.js'),
         ], true);
     }
 }
